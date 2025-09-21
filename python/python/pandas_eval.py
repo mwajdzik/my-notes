@@ -13,6 +13,23 @@ orders = pd.read_excel("../data/spreadsheet.xlsx", sheet_name="zamowienia")
 # select columns
 customers = customers[["id", "imie", "nazwisko", "miasto"]]
 
+# filter
+orders = orders[orders['produkt'] != 'Monitor']
+
+# create a new column
+city_to_voivodeship = {
+    "Warszawa": "Mazowieckie",
+    "Kraków": "Małopolskie",
+    "Poznań": "Wielkopolskie",
+    "Gdańsk": "Pomorskie",
+    "Wrocław": "Dolnośląskie"
+}
+
+customers["województwo"] = customers["miasto"].map(city_to_voivodeship)
+customers["województwo"] = customers["miasto"].apply(lambda m: city_to_voivodeship[m])
+
+customers["województwo"].fillna("Nieznane", inplace=True)
+
 # merge
 result = orders.merge(customers, left_on="id_klienta", right_on="id")
 
@@ -23,24 +40,26 @@ print(orders.head())
 print()
 
 print(result.head())
+print(result.info())
+print(result.describe())
+print(result.shape)
 print()
 
 result = result.drop(['id_zamowienia', 'id_klienta', 'id'], axis=1)
 result = result[['imie', 'nazwisko', 'miasto', 'produkt', 'wartosc']]
 
 # group
-
 grouped = result.groupby("miasto")["wartosc"].sum()
 grouped = grouped.reset_index()
 
 # style output
-result = result.style \
+styled_result = result.style \
     .map(lambda x: 'color: red' if x > 2000 else '', ['wartosc']) \
     .map(lambda x: 'background-color: green' if x == 'Kraków' else '', ['miasto'])
 
 # write to an Excel file
 with pd.ExcelWriter("../data/output-spreadsheet.xlsx", engine="openpyxl") as writer:
-    result.to_excel(writer, sheet_name="Report", index=False)
+    styled_result.to_excel(writer, sheet_name="Report", index=False)
     grouped.to_excel(writer, sheet_name="Grouped", index=True)
 
 # ---
@@ -63,3 +82,17 @@ print()
 
 print(customers.merge(orders, left_on="id", right_on="id_klienta", how="outer").head(n=10))
 print()
+
+# ---
+
+result_pivot = result.pivot_table(
+    index="miasto",
+    columns="produkt",
+    values="wartosc",
+    aggfunc="sum",
+    fill_value=0
+)
+
+print(result_pivot)
+
+# ---
