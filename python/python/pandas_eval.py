@@ -30,6 +30,9 @@ customers["województwo"] = customers["miasto"].apply(lambda m: city_to_voivodes
 
 customers["województwo"].fillna("Nieznane", inplace=True)
 
+# filter customers only from Małopolskie
+customers = customers[customers["województwo"] == "Małopolskie"]
+
 # merge
 result = orders.merge(customers, left_on="id_klienta", right_on="id")
 
