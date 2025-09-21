@@ -1,0 +1,19 @@
+plugins {
+    id 'java'
+}
+
+group = 'org.amw061'
+version = '1.0.0'
+sourceCompatibility = '17'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.9.2'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
