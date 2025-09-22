@@ -96,3 +96,28 @@ result_pivot = result.pivot_table(
 print(result_pivot)
 
 # ---
+
+from openpyxl import load_workbook
+from openpyxl.styles import PatternFill
+
+
+def set_tab_color(workbook, sheet, color):
+    workbook[sheet].sheet_properties.tabColor = color
+
+
+def set_header_color(workbook, sheet, header, color):
+    fill = PatternFill(start_color=color, end_color=color, fill_type="solid")
+    for cell in workbook[sheet][1]:
+        if cell.value == header:
+            cell.fill = fill
+
+
+spreadsheet_file = "../data/output-spreadsheet.xlsx"
+wb = load_workbook(spreadsheet_file)
+set_tab_color(wb, "Grouped", "FF5733")
+set_header_color(wb, "Grouped", "miasto", "4293f5")
+set_header_color(wb, "Grouped", "wartosc", "f56042")
+set_header_color(wb, "Report", "produkt", "acba03")
+wb.save(spreadsheet_file)
+
+# ---
